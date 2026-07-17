@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { exchangeAuthorizationCode } from "@/app/lib/auth/token";
 
 import {
 
@@ -16,6 +17,8 @@ export async function GET(request: NextRequest) {
 
     const state = params.get("state");
 
+
+
     if (!code)
         return NextResponse.json({
 
@@ -25,12 +28,14 @@ export async function GET(request: NextRequest) {
 
     const authCookie = await readAuthCookie();
 
+
     if (!authCookie)
         return NextResponse.json({
 
             error: "Cookie not found"
 
         }, { status: 400 });
+
 
     if (authCookie.state !== state)
         return NextResponse.json({
@@ -39,13 +44,20 @@ export async function GET(request: NextRequest) {
 
         }, { status: 400 });
 
+    const token = await exchangeAuthorizationCode(
+        code || "",
+        authCookie.codeVerifier || ""
+    );
+
     await deleteAuthCookie();
 
-    return NextResponse.json({
+    return NextResponse.json(token);
 
-        message: "State validated successfully",
+    // return NextResponse.json({
 
-        authorizationCode: code
+    //     message: "State validated successfully",
 
-    });
+    //     authorizationCode: code
+
+    // });
 }
