@@ -1,6 +1,7 @@
 import { discover } from "./oidc";
 import { oidcConfig } from "../config";
 import crypto from "crypto";
+import { generateCodeChallenge } from "./pkce";
 
 export interface AuthorizationData {
     authorizationUrl: string;
@@ -17,11 +18,13 @@ export async function buildAuthorizationUrl(
 
     const discovery = await discover();
 
-    const codeChallenge = crypto
-        .createHash("sha256")
-        .update(codeVerifier)
-        .digest("base64url");
-
+    // const codeChallenge = crypto
+    //     .createHash("sha256")
+    //     .update(codeVerifier)
+    //     .digest("base64url");
+    
+    const codeChallenge = generateCodeChallenge(codeVerifier);
+    
     const url = new URL(discovery.authorization_endpoint);
 
     url.searchParams.set("client_id", oidcConfig.clientId);
