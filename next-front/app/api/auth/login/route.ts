@@ -6,7 +6,7 @@ import {
     generateState
 } from "@/app/lib/auth/state";
 import { buildAuthorizationUrl } from "@/app/lib/auth/authorization";
-
+import { saveAuthCookie } from "@/app/lib/auth/cookies";
 
 export async function GET() {
 
@@ -25,6 +25,15 @@ export async function GET() {
     console.log("====== LOGIN ======");
 
     console.log(auth);
+
+    await saveAuthCookie({
+
+        state,
+
+        nonce,
+
+        codeVerifier
+    });
 
     return NextResponse.redirect(auth.authorizationUrl);
 }
