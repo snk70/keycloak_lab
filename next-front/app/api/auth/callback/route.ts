@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exchangeAuthorizationCode } from "@/app/lib/auth/token";
 
 import {
-
     readAuthCookie,
-
     deleteAuthCookie
-
 } from "@/app/lib/auth/cookies";
+
+import {
+    exchangeAuthorizationCode
+} from "@/app/lib/auth/token";
+
+import {
+    createSession
+} from "@/app/lib/auth/session";
 
 export async function GET(request: NextRequest) {
 
@@ -17,47 +21,80 @@ export async function GET(request: NextRequest) {
 
     const state = params.get("state");
 
+    if (!code) {
 
+        return NextResponse.json(
+            {
+                error: "Authorization Code missing"
+            },
+            {
+                status: 400
+            }
+        );
+    }
 
-    if (!code)
-        return NextResponse.json({
+    if (!state) {
 
-            error: "Authorization Code missing"
-
-        }, { status: 400 });
+        return NextResponse.json(
+            {
+                error: "State missing"
+            },
+            {
+                status: 400
+            }
+        );
+    }
 
     const authCookie = await readAuthCookie();
 
+    if (!authCookie) {
 
-    if (!authCookie)
-        return NextResponse.json({
+        return NextResponse.json(
+            {
+                error: "Authentication cookie not found"
+            },
+            {
+                status: 400
+            }
+        );
+    }
 
-            error: "Cookie not found"
+    if (authCookie.state !== state) {
 
-        }, { status: 400 });
-
-
-    if (authCookie.state !== state)
-        return NextResponse.json({
-
-            error: "Invalid State"
-
-        }, { status: 400 });
+        return NextResponse.json(
+            {
+                error: "Invalid state"
+            },
+            {
+                status: 400
+            }
+        );
+    }
 
     const token = await exchangeAuthorizationCode(
-        code || "",
-        authCookie.codeVerifier || ""
+        code,
+        authCookie.codeVerifier
     );
+
+    await createSession({
+
+        accessToken: token.access_token,
+
+        refreshToken: token.refresh_token,
+
+        idToken: token.id_token,
+
+        expiresAt:
+            Date.now() +
+            token.expires_in * 1000
+    });
 
     await deleteAuthCookie();
 
-    return NextResponse.json(token);
-
-    // return NextResponse.json({
-
-    //     message: "State validated successfully",
-
-    //     authorizationCode: code
-
-    // });
+    return NextResponse.redirect(
+        new URL(
+            "/dashboard",
+            request.url
+        )
+    );
 }
