@@ -28,6 +28,6 @@ export async function GET() {
 
         authenticated: true,
 
-        expiresAt: session.expiresAt
+        expiresAt: session.session.expiresAt
     });
 }
