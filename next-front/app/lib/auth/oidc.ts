@@ -6,6 +6,8 @@ export async function discover() {
         `${oidcConfig.issuer}/.well-known/openid-configuration`
     );
 
+
+
     if (!response.ok) {
         throw new Error("Discovery failed");
     }

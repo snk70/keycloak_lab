@@ -2,3 +2,5 @@ http://localhost:3000/api/auth/login
 
 
 http://localhost:3000/api/auth/session
+
+http://localhost:3000/api/auth/access-token

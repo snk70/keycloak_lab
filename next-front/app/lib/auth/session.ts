@@ -45,7 +45,10 @@ export async function createSession(
     return sessionId;
 }
 
-export async function getSession(): Promise<Session | null> {
+export async function getSession(): Promise<{
+    id: string;
+    session: Session;
+} | null> {
 
     const cookieStore = await cookies();
 
@@ -61,7 +64,10 @@ export async function getSession(): Promise<Session | null> {
         return null;
     }
 
-    return session;
+    return {
+        id: cookie.value,
+        session
+    };
 }
 
 export async function destroySession() {
@@ -75,4 +81,11 @@ export async function destroySession() {
     }
 
     cookieStore.delete(SESSION_COOKIE);
+}
+
+export async function updateSession(
+    sessionId: string,
+    session: Session
+) {
+    sessions.set(sessionId, session);
 }
