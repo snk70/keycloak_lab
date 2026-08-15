@@ -1,6 +1,16 @@
 version: "3.9"
 
 services:
+  apisix:
+    image: apache/apisix:3.15.0-debian
+    container_name: apisix
+
+    volumes:
+      - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+      - ./apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
+
+    ports:
+      - "9080:9080"
 
   postgres:
     image: postgres:17
@@ -20,7 +30,6 @@ services:
     restart: unless-stopped
 
   keycloak:
-
     image: quay.io/keycloak/keycloak:26.6.4
 
     container_name: keycloak
@@ -29,7 +38,6 @@ services:
       - start-dev
 
     environment:
-
       KC_DB: postgres
 
       KC_DB_URL_HOST: postgres
@@ -51,5 +59,4 @@ services:
       - postgres
 
 volumes:
-
   postgres_data:

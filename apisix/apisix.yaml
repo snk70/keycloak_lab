@@ -1,0 +1,12 @@
+routes:
+  - id: product-api
+
+    uri: /products*
+
+    upstream:
+      type: roundrobin
+
+      nodes:
+        "host.docker.internal:1100": 1
+
+#END

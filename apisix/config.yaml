@@ -1,0 +1,15 @@
+apisix:
+  node_listen:
+    - 9080
+
+deployment:
+  role: data_plane
+
+  role_data_plane:
+    config_provider: yaml
+
+  admin:
+    admin_key:
+      - name: admin
+        key: your-admin-key
+        role: admin
